@@ -4,13 +4,22 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 # Database Configuration
-# Defaulting to root/root123 for live environment
-MYSQL_USER = os.getenv("MYSQL_USER", "root")
-MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "root123")
-MYSQL_HOST = os.getenv("MYSQL_HOST", "127.0.0.1")
-MYSQL_DB = os.getenv("MYSQL_DB", "dataguardian")
+# Priority 1: DATABASE_URL (for AWS App Runner / RDS)
+# Priority 2: Individual MYSQL_* env vars
+# Priority 3: Fallback defaults (Local MySQL or SQLite)
 
-SQLALCHEMY_DATABASE_URL = f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DB}"
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    MYSQL_USER = os.getenv("MYSQL_USER", "root")
+    MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "root123")
+    MYSQL_HOST = os.getenv("MYSQL_HOST", "127.0.0.1")
+    MYSQL_DB = os.getenv("MYSQL_DB", "dataguardian")
+    SQLALCHEMY_DATABASE_URL = f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DB}"
+else:
+    # App Runner often provides a DATABASE_URL. If it's postgres, you'd need the driver,
+    # but here we assume MySQL/MariaDB for RDS.
+    SQLALCHEMY_DATABASE_URL = DATABASE_URL
 
 # Robust fallback to SQLite if MySQL is not reachable
 use_sqlite = False
