@@ -1,93 +1,101 @@
-# DataGuardian: Backup Resilience Platform
+# DataGuardian: Backup & Recovery Resilience Platform
 
-DataGuardian is a state-of-the-art resilience management dashboard that provides live scoring, AI-driven infrastructure analysis, and high-fidelity backup simulations.
-
-## 🚀 Getting Started
-
-### Prerequisites
-- **Node.js** (v18+)
-- **Python** (v3.9+)
-- **MySQL Server** (Running on port 3306)
+DataGuardian is a high-fidelity resilience monitoring platform designed to provide real-time visibility into infrastructure backup readiness. It features a modern glassmorphism dashboard, real-time resilience scoring, backup simulations, and a Gemini-powered AI assistant named **Dian**.
 
 ---
 
-## 🛠️ Installation & Setup
+## 🚀 Features
 
-### 1. Database Setup (MySQL)
-Execute the following commands in your MySQL terminal (or use a tool like MySQL Workbench):
+- **Intelligent Resilience Scoring**: Automatically calculates system health (Ready, At-Risk, Critical) based on backup freshness and historical success rates.
+- **Dynamic Dashboard**: A dependency-free, lightweight Vanilla JS interface with real-time updates and filtering.
+- **Backup Simulation Engine**: Test your system resilience with simulated backup jobs featuring randomized, weighted failure outcomes and detailed terminal logs.
+- **Dian AI Assistant**: A multi-model AI chatbot (GenAI/OpenAI/Heuristic) that analyzes your fleet health and provides recovery recommendations.
+- **Report Export**: Filtered data export to CSV for auditing and compliance.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Backend**: FastAPI (Python 3.x), SQLAlchemy (ORM)
+- **Frontend**: Vanilla HTML5, CSS3, JavaScript (ES6+)
+- **Database**: MySQL (Primary) with SQLite fallback
+- **AI Engine**: Google Gemini Pro & OpenAI GPT-4o-mini
+
+---
+
+## 📋 Installation & Setup
+
+### 1. Prerequisite: MySQL Setup
+
+Ensure your MySQL server is running on `127.0.0.1` (default port 3306).
 
 ```sql
--- Create the database
 CREATE DATABASE dataguardian;
-
--- Table schemas are handled automatically by the backend, 
--- but you can find the manual SQL queries in backend/schema.sql
+-- The application uses user 'root' and password 'root123' by default.
+-- You can modify backend/database.py to change these credentials.
 ```
-**Default Credentials**:
-- **User**: `root`
-- **Password**: `root123` (Adjust in `backend/database.py` if different)
 
 ### 2. Backend Setup
 
-#### 🍎 MacOS / Linux
 ```bash
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+# Clone the repository
+git clone <your-repo-url>
+cd DataGuardian
 
-#### 🪟 Windows
-```powershell
-cd backend
+# Create and activate virtual environment
 python -m venv venv
-.\venv\Scripts\activate
-pip install -r requirements.txt
+source venv/bin/activate  # macOS/Linux
+# venv\Scripts\activate  # Windows
+
+# Install dependencies
+pip install -r backend/requirements.txt
 ```
 
-### 3. Frontend Setup (Both OS)
+### 3. Environment Variables
+
+To enable full AI capabilities, set the following environment variables:
+
 ```bash
-cd frontend
-npm install
+export GEMINI_API_KEY='your_gemini_key_here'
+export OPENAI_API_KEY='your_openai_key_here'
 ```
 
 ---
 
 ## 🏃 Running the Application
 
-You need two terminal windows:
+### Start the Server
 
-### Terminal 1: Backend
+Run the backend server using Uvicorn. The backend will automatically serve the frontend at the root URL.
+
 ```bash
-# MacOS/Linux
-export GEMINI_API_KEY='your_key'
-PYTHONPATH=. ./venv/bin/python3 -m uvicorn main:app --reload
-
-# Windows (PowerShell)
-$env:GEMINI_API_KEY="your_key"
-python -m uvicorn main:app --reload
+uvicorn backend.main:app --reload
 ```
 
-### Terminal 2: Frontend
-```bash
-cd frontend
-npm run dev
+### Access the Dashboard
+
+Once the server is running, visit:
+**[http://localhost:8000](http://localhost:8000)**
+
+---
+
+## 📂 Project Structure
+
+```text
+DataGuardian/
+├── backend/
+│   ├── main.py        # API Routes & AI Logic
+│   ├── models.py      # SQLAlchemy Models
+│   ├── database.py    # DB Connection & Fallback
+│   └── requirements.txt
+├── index.html         # Frontend Dashboard (Vanilla)
+├── style.css          # Design System & Premium UI
+├── script.js           # Frontend Logic & Simulation
+└── README.md
 ```
 
 ---
 
-## 📊 Scoring Logic
-The current platform uses a **Weighted Average** model to calculate system health:
-- **Freshness (sf)**: Score based on time since last successful backup.
-- **Reliability (ss)**: Score based on 7-day success rate.
-- **Formula**: `(sf + ss) / 2`
+## 🛡️ License
 
-**Status Mapping**:
-- **Ready**: Score = 1.0
-- **At-Risk**: Score = 0.5
-- **Critical**: Score < 0.5
-
----
-
-## 🤖 AI Assistant (Dian)
-Dian is powered by **Google Gemini**. Ensure you have a valid `GEMINI_API_KEY` exported in your environment. She utilizes a "RAG-Lite" logic, reading your live MySQL infrastructure state to provide real-time guidance.
+This project is for demonstration and production readiness testing purposes. See the license file for details.

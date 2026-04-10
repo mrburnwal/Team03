@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, timedelta
@@ -27,6 +27,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- Static File Serving (Frontend) ---
+@app.get("/")
+def serve_index():
+    return FileResponse("index.html")
+
+@app.get("/style.css")
+def serve_css():
+    return FileResponse("style.css")
+
+@app.get("/script.js")
+def serve_js():
+    return FileResponse("script.js")
 
 # Helper function to calculate status
 def calculate_system_status(system, db: Session):

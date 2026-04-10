@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataGuardian | Infrastructure Resilience</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard">
+        <header class="header">
+            <div>
+                <h1>DataGuardian</h1>
+                <p style="color: var(--text-muted)">Infrastructure Resilience Scorecard</p>
+            </div>
+            <div style="display: flex; gap: 1rem">
+                <button id="downloadBtn" class="filter-btn" style="border-color: var(--success); color: var(--success)">
+                    📥 Download Report
+                </button>
+                <button id="toggleFormBtn" class="filter-btn" style="background: var(--primary)">
+                    ＋ Add Resource
+                </button>
+                <button id="seedBtn" class="filter-btn">
+                    Seed Demo
+                </button>
+            </div>
+        </header>
+
+        <!-- New System Form -->
+        <div id="systemForm" class="hidden-section" style="background: var(--card-bg); padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; border: 1px solid var(--primary)">
+            <h3>Register New Instance</h3>
+            <form id="createSystemForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; marginTop: 1rem">
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--text-muted)">System Name</label>
+                    <input name="name" class="filter-btn" style="width: 100%; margin-top: 0.25rem; text-align: left" required>
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--text-muted)">Type</label>
+                    <select name="type" class="filter-btn" style="width: 100%; margin-top: 0.25rem">
+                        <option>Database</option><option>Storage</option><option>Compute</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--text-muted)">Environment</label>
+                    <select name="env" class="filter-btn" style="width: 100%; margin-top: 0.25rem">
+                        <option>Prod</option><option>Dev</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--text-muted)">Criticality</label>
+                    <select name="criticality" class="filter-btn" style="width: 100%; margin-top: 0.25rem">
+                        <option>High</option><option>Med</option><option>Low</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: flex-end">
+                    <button type="submit" class="filter-btn" style="width: 100%; background: var(--primary)">Save System</button>
+                </div>
+            </form>
+            <p id="formError" class="hidden-section" style="color: var(--danger); margin-top: 1rem; font-size: 0.9rem"></p>
+        </div>
+
+        <!-- KPI Strip -->
+        <section class="kpi-container">
+            <div class="kpi-card">
+                <div class="label">Total Resources</div>
+                <div id="totalKpi" class="value">0</div>
+            </div>
+            <div class="kpi-card" style="border-left: 4px solid var(--success)">
+                <div class="label">Ready</div>
+                <div id="readyKpi" class="value">0</div>
+            </div>
+            <div class="kpi-card" style="border-left: 4px solid var(--warning)">
+                <div class="label">At-Risk</div>
+                <div id="atRiskKpi" class="value">0</div>
+            </div>
+            <div class="kpi-card" style="border-left: 4px solid var(--danger)">
+                <div class="label">Critical</div>
+                <div id="criticalKpi" class="value">0</div>
+            </div>
+        </section>
+
+        <!-- Filters -->
+        <div class="controls">
+            <button class="filter-btn env-filter active" data-env="All">All Environments</button>
+            <button class="filter-btn env-filter" data-env="Prod">Production</button>
+            <button class="filter-btn env-filter" data-env="Dev">Development</button>
+            <span style="margin: 0 1rem; border-left: 1px solid var(--glass-border)"></span>
+            <select id="typeFilter" class="filter-btn" style="background: var(--card-bg)">
+                <option value="All">All Types</option>
+                <option value="Database">Databases</option>
+                <option value="Storage">Storage</option>
+                <option value="Compute">Compute</option>
+            </select>
+        </div>
+
+        <!-- Resources Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Resource Name</th>
+                        <th>Environment</th>
+                        <th>Type</th>
+                        <th>Last Backup</th>
+                        <th>7d Success Rate</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="resourceTableBody">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Job Result Modal -->
+        <div id="jobModal" class="modal-overlay hidden-section">
+            <div class="modal-content log-modal">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem">
+                    <h3 id="modalTitle">Job Result</h3>
+                    <button class="filter-btn closeModal" style="padding: 0.25rem 0.75rem">✕</button>
+                </div>
+                
+                <div id="statusBanner" class="status-banner"></div>
+
+                <div id="terminalLogs" class="terminal-logs">
+                    <!-- Logs here -->
+                </div>
+
+                <div style="margin-top: 1.5rem; text-align: right">
+                    <button class="filter-btn closeModal" style="background: var(--primary)">Done</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dian Chatbot -->
+        <div class="dian-bot">
+            <button id="chatTrigger" class="dian-trigger" title="Ask Dian">D</button>
+            <div id="chatWindow" class="chat-window hidden-section">
+                <div class="chat-header">
+                    <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--success)"></div>
+                    <strong>Dian Cloud Intelligence</strong>
+                </div>
+                <div id="chatMessages" class="chat-messages">
+                    <div class="msg msg-assistant">Hello! I am Dian. How can I help you optimize your infrastructure resilience today?</div>
+                </div>
+                <form id="chatForm" class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Ask anything about the fleet..." autocomplete="off">
+                    <button type="submit" class="filter-btn" style="padding: 0.25rem 0.75rem">→</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
